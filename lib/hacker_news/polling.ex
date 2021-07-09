@@ -1,4 +1,11 @@
 defmodule HackerNews.Polling do
+  @moduledoc """
+  GenServer that fetches top stories from the
+  HackerNews API every {send_after} milliseconds.
+  For each story fetched, it sends the story_id to the
+  ItemProcessor GenServer.
+  """
+
   use GenServer
 
   @max_storage Application.get_env(:hacker_news, :max_storage)
@@ -15,6 +22,7 @@ defmodule HackerNews.Polling do
     {:ok, state}
   end
 
+  @impl true
   def handle_info(:poll, %{client: client, send_after: send_after} = state) do
     with {:ok, %{status: 200, body: top_stories}} <- client.top_stories() do
       top_stories
