@@ -30,8 +30,12 @@ defmodule HackerNews.Endpoint do
   end
 
   get "/stories/:story_id" do
-    story_id = String.to_integer(story_id)
-    response = HackerNews.Storage.get(story_id) |> Jason.encode!()
+    response =
+      story_id
+      |> String.to_integer()
+      |> HackerNews.Storage.get()
+      |> Jason.encode!()
+
     send_resp(conn, 200, response)
   end
 
