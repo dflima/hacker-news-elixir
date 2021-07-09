@@ -3,7 +3,7 @@ defmodule HackerNewsClientTest do
 
   describe "top_stores/0" do
     test "returns the top 500 stories" do
-      {:ok, response} = HackerNewsClient.top_stories()
+      {:ok, response} = HackerNews.Client.top_stories()
 
       assert %Tesla.Env{} = response
       assert 200 == response.status
