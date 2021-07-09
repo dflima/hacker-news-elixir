@@ -3,7 +3,7 @@ defmodule Hackernews.StorageTest do
 
   describe "init/1" do
     test "initializes with empty list" do
-      assert {:ok, %{}} == HackerNews.Storage.init(:unused)
+      assert {:ok, []} == HackerNews.Storage.init(:unused)
     end
   end
 
@@ -14,8 +14,7 @@ defmodule Hackernews.StorageTest do
       {:ok, pid} = HackerNews.Storage.start_link(name: :storage_server)
       HackerNews.Storage.store(pid, story)
 
-      story_id = story.id
-      assert %{story_id => story} == :sys.get_state(pid)
+      assert [story] == :sys.get_state(pid)
     end
 
     test "should erase previous items when the state reaches max_storage" do
@@ -27,7 +26,7 @@ defmodule Hackernews.StorageTest do
       stories
       |> Enum.each(&HackerNews.Storage.store(pid, &1))
 
-      assert %{last_story.id => last_story} == :sys.get_state(pid)
+      assert [last_story] == :sys.get_state(pid)
     end
   end
 
@@ -37,8 +36,6 @@ defmodule Hackernews.StorageTest do
       items = HackerNews.Storage.get_all(pid)
 
       assert 0 == Enum.count(items)
-      assert [] == Map.values(items)
-      assert %{} == items
     end
   end
 

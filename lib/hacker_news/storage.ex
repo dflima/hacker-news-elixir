@@ -21,16 +21,15 @@ defmodule HackerNews.Storage do
   end
 
   def init(_options) do
-    {:ok, %{}}
+    {:ok, []}
   end
 
-  def handle_cast({:store, item}, state) do
-    new_state =
-      if Enum.count(state) < @max_storage,
-        do: Map.put(state, item.id, item),
-        else: %{item.id => item}
+  def handle_cast({:store, item}, state) when length(state) < @max_storage do
+    {:noreply, [item | state]}
+  end
 
-    {:noreply, new_state}
+  def handle_cast({:store, item}, _state) do
+    {:noreply, [item]}
   end
 
   def handle_call(:get_all, _from, state) do
@@ -38,6 +37,7 @@ defmodule HackerNews.Storage do
   end
 
   def handle_call({:get, story_id}, _from, state) do
-    {:reply, Map.get(state, story_id), state}
+    story = Enum.find(state, fn %{id: id} -> id == story_id end)
+    {:reply, story, state}
   end
 end
