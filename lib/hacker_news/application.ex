@@ -10,6 +10,14 @@ defmodule HackerNews.Application do
     children = [
       # Starts a worker by calling: HackerNews.Worker.start_link(arg)
       # {HackerNews.Worker, arg}
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: HackerNews.Endpoint,
+        options: [port: 4001]
+      ),
+      HackerNews.Storage,
+      {HackerNews.ItemProcessor, client: HackerNews.Client, storage: HackerNews.Storage},
+      {HackerNews.Polling, client: HackerNews.Client, send_after: 300_000}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
