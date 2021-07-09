@@ -13,7 +13,14 @@ defmodule HackerNews.Application do
       Plug.Cowboy.child_spec(
         scheme: :http,
         plug: HackerNews.Endpoint,
-        options: [port: 4001]
+        options: [
+          port: 4001,
+          dispatch: dispatch()
+        ]
+      ),
+      Registry.child_spec(
+        keys: :duplicate,
+        name: Registry.HackerNews
       ),
       HackerNews.Storage,
       {HackerNews.ItemProcessor, client: HackerNews.Client, storage: HackerNews.Storage},
@@ -24,5 +31,15 @@ defmodule HackerNews.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: HackerNews.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp dispatch do
+    [
+      {:_,
+       [
+         {"/ws/[...]", HackerNews.SocketHandler, []},
+         {:_, Plug.Cowboy.Handler, {HackerNews.Endpoint, []}}
+       ]}
+    ]
   end
 end
